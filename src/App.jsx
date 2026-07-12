@@ -11,26 +11,7 @@ import {
   askQuestion 
 } from './utils/geminiService';
 
-// Sample data for initial load
-const MOCK_INITIAL_LOGS = [
-  { id: 'log-1', text: "Met John Doe at a Stripe coffee mixer. He is a Tech Lead there. He mentioned he is looking for a UI designer and works closely with Sarah Connor.", timestamp: Date.now() - 86400000 * 3 },
-  { id: 'log-2', text: "Sarah Connor is a Product Manager at Stripe. John's coworker. She is really passionate about AI safety and works with Miles Dyson on a research project.", timestamp: Date.now() - 86400000 * 2 },
-  { id: 'log-3', text: "Miles Dyson is the Director of Systems at Cyberdyne. Sarah Connor works with him. He's leading the neural net processor project.", timestamp: Date.now() - 86400000 * 1 },
-  { id: 'log-4', text: "Alice Smith works at Vercel in DevRel. Met her at JS Conf. She knows John Doe from college and is a genius at frontend performance.", timestamp: Date.now() - 86400000 * 0.5 }
-];
 
-const MOCK_INITIAL_CONTACTS = [
-  { name: "John Doe", company: "Stripe", role: "Tech Lead", notes: "Loves hiking, looking for a UI designer. Friends with Sarah Connor." },
-  { name: "Sarah Connor", company: "Stripe", role: "Product Manager", notes: "John's coworker. Passionate about AI safety. Works with Miles Dyson." },
-  { name: "Miles Dyson", company: "Cyberdyne", role: "Director of Systems", notes: "Sarah's contact. Leading the neural net processor project." },
-  { name: "Alice Smith", company: "Vercel", role: "DevRel", notes: "Met at JS Conf. Expert in frontend perf. Knows John Doe from college." }
-];
-
-const MOCK_INITIAL_CONNECTIONS = [
-  { from: "John Doe", to: "Sarah Connor", type: "Colleague" },
-  { from: "Sarah Connor", to: "Miles Dyson", type: "Collaborator" },
-  { from: "Alice Smith", to: "John Doe", type: "College Friend" }
-];
 
 export default function App() {
   // Theme and UI layout states
@@ -74,7 +55,7 @@ export default function App() {
     }
   };
 
-  // 1. Initialize data from backend database, fallback to localstorage or mock
+  // 1. Initialize data from backend database, fallback to localstorage or empty arrays
   useEffect(() => {
     async function loadData() {
       try {
@@ -84,7 +65,7 @@ export default function App() {
         const data = await res.json();
         
         // If backend database exists but is completely empty (e.g. brand new DB file)
-        // check if we have localStorage we can import/sync, otherwise populate initial mocks
+        // check if we have localStorage we can import/sync, otherwise start empty
         if (data.rawTexts.length === 0 && data.contacts.length === 0) {
           const storedLogs = localStorage.getItem('crm_raw_texts');
           const storedContacts = localStorage.getItem('crm_contacts');
@@ -105,11 +86,11 @@ export default function App() {
             // Sync to backend database immediately so it populates
             saveToBackend(localRaw, localContacts, localConns, localKey);
           } else {
-            // First run, populate mock
-            setRawTexts(MOCK_INITIAL_LOGS);
-            setContacts(MOCK_INITIAL_CONTACTS);
-            setConnections(MOCK_INITIAL_CONNECTIONS);
-            saveToBackend(MOCK_INITIAL_LOGS, MOCK_INITIAL_CONTACTS, MOCK_INITIAL_CONNECTIONS, apiKey);
+            // First run: start completely empty!
+            setRawTexts([]);
+            setContacts([]);
+            setConnections([]);
+            saveToBackend([], [], [], apiKey);
           }
         } else {
           // Set state from backend database
@@ -137,9 +118,10 @@ export default function App() {
           setConnections(JSON.parse(storedConnections));
           setApiKey(storedApiKey || '');
         } else {
-          setRawTexts(MOCK_INITIAL_LOGS);
-          setContacts(MOCK_INITIAL_CONTACTS);
-          setConnections(MOCK_INITIAL_CONNECTIONS);
+          // Start empty
+          setRawTexts([]);
+          setContacts([]);
+          setConnections([]);
         }
         showToast("Offline mode (LocalStorage active)");
       }
