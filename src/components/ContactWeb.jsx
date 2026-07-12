@@ -1,13 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { User, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
 export default function ContactWeb({ contacts, connections, onSelectContact }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 600, height: 500 });
-  const [nodes, setNodes] = useState([]);
-  const [links, setLinks] = useState([]);
   const [hoveredNode, setHoveredNode] = useState(null);
-  const [draggedNode, setDraggedNode] = useState(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
@@ -28,189 +25,106 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
     return () => resizeObserver.disconnect();
   }, []);
 
-  // Sync contacts and connections to physics nodes and links
-  useEffect(() => {
-    const nodeMap = new Map(nodes.map(n => [n.name, n]));
+  // Determine active focus contact
+  const focalContactName = useMemo(() => {
+    if (contacts.length === 0) return null;
     
-    const newNodes = contacts.map(c => {
-      const existing = nodeMap.get(c.name);
-      return {
-        ...c,
-        id: c.name,
-        x: existing ? existing.x : dimensions.width / 2 + (Math.random() - 0.5) * 100,
-        y: existing ? existing.y : dimensions.height / 2 + (Math.random() - 0.5) * 100,
-        vx: existing ? existing.vx : 0,
-        vy: existing ? existing.vy : 0
-      };
-    });
+    // 1. If user clicked/selected a profile card, center around them
+    // (We find it in the contacts list to confirm it still exists)
+    // We can also let the visual click update it
+    return contacts[0].name; // default fallback
+  }, [contacts]);
 
-    const newLinks = connections.map(conn => {
-      return {
-        ...conn,
-        source: conn.from,
-        target: conn.to
-      };
-    });
+  // Track the custom focal target inside the canvas to allow interactive re-centering
+  const [canvasFocal, setCanvasFocal] = useState(null);
 
-    setNodes(newNodes);
-    setLinks(newLinks);
-  }, [contacts, connections, dimensions.width, dimensions.height]);
-
-  // Physics animation loop
+  // Sync canvas focal name when contacts load
   useEffect(() => {
-    if (nodes.length === 0) return;
-
-    let animationFrameId;
-    const kAttract = 0.04;
-    const kRepel = 800;
-    const kGravity = 0.02;
-    const friction = 0.85;
-
-    const updatePhysics = () => {
-      setNodes(prevNodes => {
-        const nMap = new Map(prevNodes.map(n => [n.name, n]));
-        const forces = prevNodes.map(node => ({ fx: 0, fy: 0 }));
-
-        // 1. Repulsion between all node pairs
-        for (let i = 0; i < prevNodes.length; i++) {
-          const nodeA = prevNodes[i];
-          for (let j = i + 1; j < prevNodes.length; j++) {
-            const nodeB = prevNodes[j];
-            
-            const dx = nodeB.x - nodeA.x;
-            const dy = nodeB.y - nodeA.y;
-            const distSq = dx * dx + dy * dy + 0.1;
-            const dist = Math.sqrt(distSq);
-
-            if (dist < 250) {
-              const force = kRepel / distSq;
-              const fx = (dx / dist) * force;
-              const fy = (dy / dist) * force;
-
-              forces[i].fx -= fx;
-              forces[i].fy -= fy;
-              forces[j].fx += fx;
-              forces[j].fy += fy;
-            }
-          }
-        }
-
-        // 2. Attraction along links
-        links.forEach(link => {
-          const sourceNode = nMap.get(link.from);
-          const targetNode = nMap.get(link.to);
-          if (!sourceNode || !targetNode) return;
-
-          const dx = targetNode.x - sourceNode.x;
-          const dy = targetNode.y - sourceNode.y;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 0.1;
-          const desiredDist = 120;
-          const force = (dist - desiredDist) * kAttract;
-
-          const fx = (dx / dist) * force;
-          const fy = (dy / dist) * force;
-
-          const srcIdx = prevNodes.findIndex(n => n.name === link.from);
-          const tgtIdx = prevNodes.findIndex(n => n.name === link.to);
-
-          if (srcIdx !== -1) {
-            forces[srcIdx].fx += fx;
-            forces[srcIdx].fy += fy;
-          }
-          if (tgtIdx !== -1) {
-            forces[tgtIdx].fx -= fx;
-            forces[tgtIdx].fy -= fy;
-          }
-        });
-
-        // 3. Gravity pulling to the center of SVG frame
-        const centerX = dimensions.width / 2;
-        const centerY = dimensions.height / 2;
-        prevNodes.forEach((node, i) => {
-          const dx = centerX - node.x;
-          const dy = centerY - node.y;
-          forces[i].fx += dx * kGravity;
-          forces[i].fy += dy * kGravity;
-        });
-
-        const updated = prevNodes.map((node, i) => {
-          if (draggedNode && node.name === draggedNode.name) {
-            return node;
-          }
-
-          const vx = (node.vx + forces[i].fx) * friction;
-          const vy = (node.vy + forces[i].fy) * friction;
-          
-          const speedLimit = 15;
-          const currentSpeed = Math.sqrt(vx * vx + vy * vy);
-          const finalVx = currentSpeed > speedLimit ? (vx / currentSpeed) * speedLimit : vx;
-          const finalVy = currentSpeed > speedLimit ? (vy / currentSpeed) * speedLimit : vy;
-
-          let nextX = node.x + finalVx;
-          let nextY = node.y + finalVy;
-
-          return {
-            ...node,
-            x: nextX,
-            y: nextY,
-            vx: finalVx,
-            vy: finalVy
-          };
-        });
-
-        return updated;
+    if (contacts.length > 0) {
+      // Find node with the most connections to be the default center
+      const connCounts = {};
+      contacts.forEach(c => { connCounts[c.name] = 0; });
+      connections.forEach(conn => {
+        if (connCounts[conn.from] !== undefined) connCounts[conn.from]++;
+        if (connCounts[conn.to] !== undefined) connCounts[conn.to]++;
       });
 
-      animationFrameId = requestAnimationFrame(updatePhysics);
-    };
-
-    animationFrameId = requestAnimationFrame(updatePhysics);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [nodes.length, links, draggedNode, dimensions]);
-
-  const handleNodeMouseDown = (e, node) => {
-    e.stopPropagation();
-    const svgRect = containerRef.current.getBoundingClientRect();
-    const mouseX = (e.clientX - svgRect.left - pan.x) / zoom;
-    const mouseY = (e.clientY - svgRect.top - pan.y) / zoom;
-    
-    setDraggedNode({
-      name: node.name,
-      offsetX: node.x - mouseX,
-      offsetY: node.y - mouseY
-    });
-  };
-
-  const handleMouseMove = (e) => {
-    if (draggedNode) {
-      const svgRect = containerRef.current.getBoundingClientRect();
-      const mouseX = (e.clientX - svgRect.left - pan.x) / zoom;
-      const mouseY = (e.clientY - svgRect.top - pan.y) / zoom;
-      
-      setNodes(prev => prev.map(n => {
-        if (n.name === draggedNode.name) {
-          return {
-            ...n,
-            x: mouseX + draggedNode.offsetX,
-            y: mouseY + draggedNode.offsetY,
-            vx: 0,
-            vy: 0
-          };
+      let maxNode = contacts[0].name;
+      let maxCount = -1;
+      Object.entries(connCounts).forEach(([name, count]) => {
+        if (count > maxCount) {
+          maxCount = count;
+          maxNode = name;
         }
-        return n;
-      }));
-    } else if (isPanning) {
-      const dx = e.clientX - panStart.current.x;
-      const dy = e.clientY - panStart.current.y;
-      setPan({ x: panStart.current.px + dx, y: panStart.current.py + dy });
+      });
+      setCanvasFocal(maxNode);
+    } else {
+      setCanvasFocal(null);
     }
-  };
+  }, [contacts, connections]);
 
-  const handleMouseUp = () => {
-    setDraggedNode(null);
-    setIsPanning(false);
-  };
+  const cx = dimensions.width / 2;
+  const cy = dimensions.height / 2;
+  const R1 = 130; // Orbit 1 Radius (Direct connections)
+  const R2 = 230; // Orbit 2 Radius (Indirect connections)
 
+  // Calculate coordinates using deterministic orbit placement
+  const nodePositions = useMemo(() => {
+    if (contacts.length === 0 || !canvasFocal) return {};
+
+    const positions = {};
+    const focalName = canvasFocal;
+
+    // Find direct neighbors of the focal node
+    const directNeighbors = new Set();
+    connections.forEach(conn => {
+      if (conn.from.toLowerCase() === focalName.toLowerCase()) directNeighbors.add(conn.to);
+      if (conn.to.toLowerCase() === focalName.toLowerCase()) directNeighbors.add(conn.from);
+    });
+
+    // Partition remaining nodes
+    const orbit1Nodes = [];
+    const orbit2Nodes = [];
+
+    contacts.forEach(c => {
+      if (c.name.toLowerCase() === focalName.toLowerCase()) {
+        positions[c.name] = { x: cx, y: cy, orbit: 0, contact: c };
+      } else if (directNeighbors.has(c.name)) {
+        orbit1Nodes.push(c);
+      } else {
+        orbit2Nodes.push(c);
+      }
+    });
+
+    // Arrange Orbit 1 (Direct)
+    const count1 = orbit1Nodes.length;
+    orbit1Nodes.forEach((c, idx) => {
+      const angle = (idx / count1) * 2 * Math.PI;
+      positions[c.name] = {
+        x: cx + R1 * Math.cos(angle),
+        y: cy + R1 * Math.sin(angle),
+        orbit: 1,
+        contact: c
+      };
+    });
+
+    // Arrange Orbit 2 (Indirect)
+    const count2 = orbit2Nodes.length;
+    orbit2Nodes.forEach((c, idx) => {
+      // Offset by PI/8 to stagger nodes and look more organic
+      const angle = (idx / count2) * 2 * Math.PI + Math.PI / 8;
+      positions[c.name] = {
+        x: cx + R2 * Math.cos(angle),
+        y: cy + R2 * Math.sin(angle),
+        orbit: 2,
+        contact: c
+      };
+    });
+
+    return positions;
+  }, [contacts, connections, canvasFocal, dimensions.width, dimensions.height]);
+
+  // Drag pan handlers
   const handleBgMouseDown = (e) => {
     setIsPanning(true);
     panStart.current = {
@@ -221,6 +135,17 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
     };
   };
 
+  const handleMouseMove = (e) => {
+    if (!isPanning) return;
+    const dx = e.clientX - panStart.current.x;
+    const dy = e.clientY - panStart.current.y;
+    setPan({ x: panStart.current.px + dx, y: panStart.current.py + dy });
+  };
+
+  const handleMouseUp = () => {
+    setIsPanning(false);
+  };
+
   const handleZoom = (factor) => {
     setZoom(prev => Math.min(Math.max(prev * factor, 0.4), 3));
   };
@@ -228,14 +153,18 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
   const resetView = () => {
     setPan({ x: 0, y: 0 });
     setZoom(1);
+    // Recenter focal node
+    if (contacts.length > 0) {
+      setCanvasFocal(contacts[0].name);
+    }
   };
 
   const isConnected = (nodeName) => {
     if (!hoveredNode) return true;
-    if (hoveredNode === nodeName) return true;
-    return links.some(link => 
-      (link.from === hoveredNode && link.to === nodeName) ||
-      (link.to === hoveredNode && link.from === nodeName)
+    if (hoveredNode.toLowerCase() === nodeName.toLowerCase()) return true;
+    return connections.some(link => 
+      (link.from.toLowerCase() === hoveredNode.toLowerCase() && link.to.toLowerCase() === nodeName.toLowerCase()) ||
+      (link.to.toLowerCase() === hoveredNode.toLowerCase() && link.from.toLowerCase() === nodeName.toLowerCase())
     );
   };
 
@@ -243,42 +172,30 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
     <div className="panel" style={{ position: 'relative', flex: 1, height: '100%', width: '100%', overflow: 'hidden' }}>
       {/* Title bar */}
       <div className="panel-header" style={{ userSelect: 'none' }}>
-        <span className="panel-title-text" style={{ color: 'var(--text-secondary)' }}>CONTACT NETWORK WEB</span>
+        <span className="panel-title-text" style={{ color: 'var(--text-secondary)' }}>CONTACT CONCENTRIC WEB</span>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button 
-            onClick={() => handleZoom(1.2)} 
-            className="btn-icon"
-            title="Zoom In"
-          >
+          <button onClick={() => handleZoom(1.2)} className="btn-icon" title="Zoom In">
             <ZoomIn size={12} style={{ color: 'var(--text-primary)' }} />
           </button>
-          <button 
-            onClick={() => handleZoom(0.8)} 
-            className="btn-icon"
-            title="Zoom Out"
-          >
+          <button onClick={() => handleZoom(0.8)} className="btn-icon" title="Zoom Out">
             <ZoomOut size={12} style={{ color: 'var(--text-primary)' }} />
           </button>
-          <button 
-            onClick={resetView} 
-            className="btn-icon"
-            title="Recenter"
-          >
+          <button onClick={resetView} className="btn-icon" title="Recenter">
             <Maximize2 size={12} style={{ color: 'var(--text-primary)' }} />
           </button>
         </div>
       </div>
 
-      {/* Network Canvas Container */}
+      {/* Canvas */}
       <div 
         ref={containerRef} 
-        style={{ flex: 1, width: '100%', position: 'relative', overflow: 'hidden', cursor: draggedNode ? 'grabbing' : isPanning ? 'grabbing' : 'grab' }}
+        style={{ flex: 1, width: '100%', position: 'relative', overflow: 'hidden', cursor: isPanning ? 'grabbing' : 'grab' }}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
         onMouseDown={handleBgMouseDown}
       >
-        {nodes.length === 0 ? (
+        {contacts.length === 0 ? (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center', userSelect: 'none', color: 'var(--text-muted)' }}>
             <User size={32} style={{ marginBottom: '8px', strokeWidth: 1 }} />
             <p style={{ fontSize: '12px', fontWeight: 'bold' }}>NO CONTACTS PARSED YET</p>
@@ -291,32 +208,61 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
             style={{ width: '100%', height: '100%', userSelect: 'none' }}
           >
             <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
-              {/* Connection lines */}
-              {links.map((link, idx) => {
-                const sourceNode = nodes.find(n => n.name === link.from);
-                const targetNode = nodes.find(n => n.name === link.to);
-                if (!sourceNode || !targetNode) return null;
+              
+              {/* Background guides / Concentric Radar rings */}
+              <circle 
+                cx={cx} 
+                cy={cy} 
+                r={R1} 
+                fill="none" 
+                stroke="var(--border-muted)" 
+                strokeWidth={1} 
+                strokeDasharray="4 4" 
+              />
+              <circle 
+                cx={cx} 
+                cy={cy} 
+                r={R2} 
+                fill="none" 
+                stroke="var(--border-muted)" 
+                strokeWidth={0.7} 
+                strokeDasharray="2 6" 
+              />
+              
+              {/* Connection lines (drawn as inward curved Bézier curves) */}
+              {connections.map((link, idx) => {
+                const posA = nodePositions[link.from];
+                const posB = nodePositions[link.to];
+                if (!posA || !posB) return null;
 
                 const isHighlighted = hoveredNode === null || 
-                  hoveredNode === link.from || 
-                  hoveredNode === link.to;
+                  hoveredNode.toLowerCase() === link.from.toLowerCase() || 
+                  hoveredNode.toLowerCase() === link.to.toLowerCase();
+
+                // Compute inward-bending control point for Bézier curve
+                const midX = (posA.x + posB.x) / 2;
+                const midY = (posA.y + posB.y) / 2;
+                
+                // Curve slightly towards the focal center (cx, cy)
+                const curveFactor = 0.25; // How much it bends
+                const ctrlX = midX + (cx - midX) * curveFactor;
+                const ctrlY = midY + (cy - midY) * curveFactor;
 
                 return (
                   <g key={`link-${idx}`} style={{ transition: 'opacity 0.3s' }}>
-                    <line
-                      x1={sourceNode.x}
-                      y1={sourceNode.y}
-                      x2={targetNode.x}
-                      y2={targetNode.y}
+                    <path
+                      d={`M ${posA.x} ${posA.y} Q ${ctrlX} ${ctrlY} ${posB.x} ${posB.y}`}
+                      fill="none"
                       stroke={isHighlighted ? "var(--text-primary)" : "var(--border-muted)"}
-                      opacity={isHighlighted ? 0.7 : 0.2}
-                      strokeWidth={isHighlighted ? 1.5 : 0.5}
-                      strokeDasharray={link.type === 'Colleague' ? 'none' : '3 3'}
+                      opacity={isHighlighted ? 0.65 : 0.15}
+                      strokeWidth={isHighlighted ? 1.2 : 0.4}
+                      strokeDasharray={link.type === 'Colleague' ? 'none' : '2 2'}
+                      style={{ transition: 'stroke 0.5s ease, stroke-width 0.5s ease' }}
                     />
                     {isHighlighted && hoveredNode && (
                       <text
-                        x={(sourceNode.x + targetNode.x) / 2}
-                        y={(sourceNode.y + targetNode.y) / 2 - 4}
+                        x={ctrlX}
+                        y={ctrlY - 4}
                         textAnchor="middle"
                         fill="var(--text-secondary)"
                         fontSize="8px"
@@ -330,62 +276,72 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
                 );
               })}
 
-              {/* Node graphics */}
-              {nodes.map((node) => {
-                const highlighted = isConnected(node.name);
-                const isHovered = hoveredNode === node.name;
+              {/* Node elements */}
+              {Object.entries(nodePositions).map(([name, pos]) => {
+                const highlighted = isConnected(name);
+                const isHovered = hoveredNode === name;
+                const isFocal = canvasFocal === name;
 
                 return (
                   <g
-                    key={node.name}
-                    transform={`translate(${node.x}, ${node.y})`}
-                    style={{ cursor: 'pointer', transition: 'opacity 0.3s' }}
-                    onMouseEnter={() => setHoveredNode(node.name)}
+                    key={name}
+                    transform={`translate(${pos.x}, ${pos.y})`}
+                    style={{ 
+                      cursor: 'pointer', 
+                      transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s'
+                    }}
+                    onMouseEnter={() => setHoveredNode(name)}
                     onMouseLeave={() => setHoveredNode(null)}
-                    onMouseDown={(e) => handleNodeMouseDown(e, node)}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onSelectContact(node);
+                      setCanvasFocal(name); // Centering node in orbit layout
+                      onSelectContact(pos.contact);
                     }}
-                    opacity={highlighted ? 1 : 0.25}
+                    opacity={highlighted ? 1 : 0.2}
                   >
-                    {/* Glowing outer circle on hover */}
+                    {/* Ring highlight */}
                     <circle
-                      r={isHovered ? 20 : 16}
+                      r={isHovered ? 18 : isFocal ? 14 : 12}
                       fill="transparent"
                       stroke="var(--text-primary)"
                       strokeWidth={1}
                       strokeDasharray={isHovered ? "2 2" : "none"}
+                      style={{ transition: 'r 0.3s ease' }}
                     />
-                    {/* Base Node */}
+                    {/* Inner point */}
                     <circle
-                      r={10}
-                      fill={isHovered ? "var(--text-primary)" : "var(--bg-primary)"}
+                      r={isFocal ? 7 : 5}
+                      fill={isHovered || isFocal ? "var(--text-primary)" : "var(--bg-primary)"}
                       stroke="var(--text-primary)"
                       strokeWidth={2}
                     />
-                    {/* Standard Label */}
-                    <rect
-                      x={-45}
-                      y={20}
-                      width={90}
-                      height={18}
-                      fill="var(--bg-primary)"
-                      stroke={isHovered ? "var(--text-primary)" : "var(--border-muted)"}
-                      strokeWidth={1}
-                    />
-                    <text
-                      y={31}
-                      textAnchor="middle"
-                      fill="var(--text-primary)"
-                      fontSize="9px"
-                      fontWeight="bold"
-                      fontFamily="var(--font-mono)"
-                    >
-                      {node.name.length > 13 ? `${node.name.substring(0, 11)}..` : node.name}
-                    </text>
                     
-                    {/* Role & Company overlay on hover */}
+                    {/* Text Label Box */}
+                    <g transform="translate(0, 16)">
+                      {/* Box border */}
+                      <rect
+                        x={-45}
+                        y={-8}
+                        width={90}
+                        height={16}
+                        fill="var(--bg-primary)"
+                        stroke={isHovered || isFocal ? "var(--text-primary)" : "var(--border-muted)"}
+                        strokeWidth={1}
+                        style={{ transition: 'stroke 0.3s ease' }}
+                      />
+                      <text
+                        y={3}
+                        textAnchor="middle"
+                        fill="var(--text-primary)"
+                        fontSize="8px"
+                        fontWeight={isFocal ? 'bold' : 'normal'}
+                        fontFamily="var(--font-mono)"
+                      >
+                        {name.length > 13 ? `${name.substring(0, 11)}..` : name}
+                      </text>
+                    </g>
+                    
+                    {/* Floating mini details overlay on hover */}
                     {isHovered && (
                       <g transform="translate(0, -32)">
                         <rect
@@ -405,7 +361,7 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
                           fontWeight="bold"
                           fontFamily="var(--font-mono)"
                         >
-                          {node.role || "Contact"}
+                          {pos.contact.role || "Contact"}
                         </text>
                         <text
                           y={8}
@@ -414,7 +370,7 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
                           fontSize="7px"
                           fontFamily="var(--font-mono)"
                         >
-                          {node.company || "Unknown"}
+                          {pos.contact.company || "Unknown"}
                         </text>
                       </g>
                     )}
@@ -426,10 +382,10 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
         )}
       </div>
       
-      {/* Help message */}
+      {/* Footer */}
       <div className="panel-footer">
-        <span>DRAG TO ORGANIZE • HOVER TO HIGHLIGHT RELATIONS • CLICK FOR INFO</span>
-        <span>NODES: {nodes.length}</span>
+        <span>CLICK A CONTACT TO FOCUS & CENTER • HOVER TO HIGHLIGHT CONNECTIONS</span>
+        <span>NODES: {contacts.length}</span>
       </div>
     </div>
   );
