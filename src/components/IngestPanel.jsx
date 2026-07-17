@@ -13,13 +13,11 @@ export default function IngestPanel({ onIngest, rawTexts, onDeleteLog, loading }
 
   return (
     <div className="panel h-full" style={{ height: '100%' }}>
-      {/* Header */}
       <div className="panel-header">
         <div className="panel-header-title">
           <Upload size={13} />
-          <span className="panel-title-text">INGEST CONTEXT</span>
+          <span className="panel-title-text">INGEST</span>
         </div>
-        <span className="panel-subtitle-text">UNSTRUCTURED LOGS</span>
       </div>
 
       {/* Upload Input Area */}
@@ -49,11 +47,10 @@ export default function IngestPanel({ onIngest, rawTexts, onDeleteLog, loading }
         </button>
       </form>
 
-      {/* History Log Title */}
       <div className="logs-list-header">
         <BookOpen size={12} style={{ color: 'var(--text-secondary)' }} />
         <span className="panel-title-text" style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
-          HISTORICAL CONTEXT ({rawTexts.length})
+          LOGS ({rawTexts.length})
         </span>
       </div>
 
@@ -69,8 +66,7 @@ export default function IngestPanel({ onIngest, rawTexts, onDeleteLog, loading }
               {/* Date & Delete Button */}
               <div className="log-item-header">
                 <div className="log-item-date">
-                  <Calendar size={10} />
-                  <span>{new Date(log.timestamp).toLocaleString()}</span>
+                  <span>{new Date(log.timestamp).toLocaleDateString()}</span>
                 </div>
                 <button
                   onClick={() => onDeleteLog(log.id)}

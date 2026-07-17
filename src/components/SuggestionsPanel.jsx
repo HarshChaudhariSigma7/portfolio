@@ -8,7 +8,7 @@ export default function SuggestionsPanel({ suggestions, loading, onRefresh, hasT
       <div className="panel-header">
         <div className="panel-header-title">
           <Lightbulb size={13} />
-          <span className="panel-title-text">PROACTIVE INSIGHTS</span>
+          <span className="panel-title-text">INSIGHTS</span>
         </div>
         <button
           onClick={onRefresh}
@@ -52,11 +52,7 @@ export default function SuggestionsPanel({ suggestions, loading, onRefresh, hasT
         )}
       </div>
       
-      {/* Footer Info */}
-      <div className="panel-footer">
-        <span>REFRESH TRIGGERS DYNAMIC CONTEXT EVALUATION</span>
-        <span>GEMINI-2.5-FLASH</span>
-      </div>
+
     </div>
   );
 }

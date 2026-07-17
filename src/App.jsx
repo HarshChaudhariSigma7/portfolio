@@ -366,18 +366,15 @@ export default function App() {
           <h1 className="header-logo">
             CONTACT.WEB
           </h1>
-          <span className="header-tagline">
-            B&W MINIMAL CRM SYSTEM
-          </span>
         </div>
 
         {/* Database Quick Stats */}
         <div className="header-stats">
-          <span>LOGS: {rawTexts.length}</span>
-          <span className="header-stats-divider">|</span>
-          <span>CONTACTS: {contacts.length}</span>
-          <span className="header-stats-divider">|</span>
-          <span>CONNECTIONS: {connections.length}</span>
+          <span>{rawTexts.length} Logs</span>
+          <span className="header-stats-divider">•</span>
+          <span>{contacts.length} Contacts</span>
+          <span className="header-stats-divider">•</span>
+          <span>{connections.length} Links</span>
         </div>
 
         {/* Action Controls */}
@@ -457,7 +454,7 @@ export default function App() {
           {selectedContact && (
             <div className="profile-card">
               <div className="profile-card-header">
-                <span>Selected Profile</span>
+                <span>Profile</span>
                 <button 
                   onClick={() => setSelectedContact(null)} 
                   className="modal-close-btn"
@@ -474,7 +471,6 @@ export default function App() {
                 </div>
                 {selectedContact.notes && (
                   <div className="profile-notes-box">
-                    <span className="profile-notes-label">Extracted Details:</span>
                     <p className="profile-notes-text">{selectedContact.notes}</p>
                   </div>
                 )}

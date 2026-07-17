@@ -170,9 +170,8 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
 
   return (
     <div className="panel" style={{ position: 'relative', flex: 1, height: '100%', width: '100%', overflow: 'hidden' }}>
-      {/* Title bar */}
       <div className="panel-header" style={{ userSelect: 'none' }}>
-        <span className="panel-title-text" style={{ color: 'var(--text-secondary)' }}>CONTACT CONCENTRIC WEB</span>
+        <span className="panel-title-text" style={{ color: 'var(--text-secondary)' }}>NETWORK</span>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button onClick={() => handleZoom(1.2)} className="btn-icon" title="Zoom In">
             <ZoomIn size={12} style={{ color: 'var(--text-primary)' }} />
@@ -383,9 +382,8 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
       </div>
       
       {/* Footer */}
-      <div className="panel-footer">
-        <span>CLICK A CONTACT TO FOCUS & CENTER • HOVER TO HIGHLIGHT CONNECTIONS</span>
-        <span>NODES: {contacts.length}</span>
+      <div className="panel-footer" style={{ justifyContent: 'flex-end' }}>
+        <span>Nodes: {contacts.length}</span>
       </div>
     </div>
   );

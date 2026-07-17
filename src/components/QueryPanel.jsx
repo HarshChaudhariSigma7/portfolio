@@ -30,29 +30,18 @@ export default function QueryPanel({ onQuery, chatHistory, loading }) {
 
   return (
     <div className="panel" style={{ flex: 1, minHeight: '300px' }}>
-      {/* Header */}
       <div className="panel-header" style={{ userSelect: 'none' }}>
         <div className="panel-header-title">
           <Terminal size={13} />
-          <span className="panel-title-text">CONTACT ASSISTANT</span>
+          <span className="panel-title-text">ASSISTANT</span>
         </div>
-        <span style={{ fontSize: '8px', padding: '2px 6px', backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)', textTransform: 'uppercase', fontWeight: 'bold' }}>
-          QA SHELL
-        </span>
       </div>
 
       {/* Chat Messages */}
       <div className="chat-messages-container">
         {chatHistory.length === 0 ? (
-          <div className="chat-empty-state">
-            <span style={{ fontSize: '10px', textTransform: 'uppercase', marginBottom: '4px', fontWeight: 'bold' }}>
-              Interactive Query Shell
-            </span>
-            <span style={{ fontSize: '9px', opacity: 0.7, maxWidth: '220px', marginBottom: '16px' }}>
-              Ask questions about relationships, job titles, or details from your notes.
-            </span>
-            
-            {/* Quick Prompts */}
+
+          <div className="chat-empty-state" style={{ padding: '16px 0' }}>
             <div className="quick-prompts-list">
               {quickPrompts.map((p, idx) => (
                 <button
@@ -73,8 +62,7 @@ export default function QueryPanel({ onQuery, chatHistory, loading }) {
               className={`chat-message ${msg.role === 'user' ? 'chat-message-user' : ''}`}
             >
               <div className="chat-message-meta">
-                <span>{msg.role === 'user' ? '↳ USER QUERY' : '↴ GEMINI RESPONSE'}</span>
-                <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                <span>{msg.role === 'user' ? '↳ You' : '↴ AI'}</span>
               </div>
               <p className="chat-message-text">{msg.content}</p>
             </div>
