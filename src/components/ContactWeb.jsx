@@ -169,26 +169,24 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
   };
 
   return (
-    <div className="panel" style={{ position: 'relative', flex: 1, height: '100%', width: '100%', overflow: 'hidden' }}>
-      <div className="panel-header" style={{ userSelect: 'none' }}>
-        <span className="panel-title-text" style={{ color: 'var(--text-secondary)' }}>NETWORK</span>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => handleZoom(1.2)} className="btn-icon" title="Zoom In">
-            <ZoomIn size={12} style={{ color: 'var(--text-primary)' }} />
-          </button>
-          <button onClick={() => handleZoom(0.8)} className="btn-icon" title="Zoom Out">
-            <ZoomOut size={12} style={{ color: 'var(--text-primary)' }} />
-          </button>
-          <button onClick={resetView} className="btn-icon" title="Recenter">
-            <Maximize2 size={12} style={{ color: 'var(--text-primary)' }} />
-          </button>
-        </div>
+    <div className="panel" style={{ position: 'relative', flex: 1, height: '100%', width: '100%', overflow: 'hidden', border: 'none' }}>
+      {/* Floating Canvas Controls */}
+      <div className="floating-controls select-none" style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10, display: 'flex', gap: '8px', background: 'var(--bg-primary)', padding: '4px', borderRadius: '6px', border: '1px solid var(--border-muted)' }}>
+        <button onClick={() => handleZoom(1.2)} className="btn-icon" title="Zoom In" style={{ border: 'none', background: 'transparent' }}>
+          <ZoomIn size={12} style={{ color: 'var(--text-primary)' }} />
+        </button>
+        <button onClick={() => handleZoom(0.8)} className="btn-icon" title="Zoom Out" style={{ border: 'none', background: 'transparent' }}>
+          <ZoomOut size={12} style={{ color: 'var(--text-primary)' }} />
+        </button>
+        <button onClick={resetView} className="btn-icon" title="Recenter" style={{ border: 'none', background: 'transparent' }}>
+          <Maximize2 size={12} style={{ color: 'var(--text-primary)' }} />
+        </button>
       </div>
 
       {/* Canvas */}
       <div 
         ref={containerRef} 
-        style={{ flex: 1, width: '100%', position: 'relative', overflow: 'hidden', cursor: isPanning ? 'grabbing' : 'grab' }}
+        style={{ flex: 1, width: '100%', height: '100%', position: 'relative', overflow: 'hidden', cursor: isPanning ? 'grabbing' : 'grab' }}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}

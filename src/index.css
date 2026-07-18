@@ -925,3 +925,227 @@ body::before {
     border: none;
   }
 }
+
+/* ==========================================================================
+   Lively Animated Redesign & Tabbed Desktop Workspace
+   ========================================================================== */
+
+/* Glowing Background Orbs */
+.glow-orb {
+  position: fixed;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  filter: blur(130px);
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+  transition: opacity 0.5s ease;
+}
+
+.dark .glow-orb {
+  opacity: 0.09;
+  mix-blend-mode: screen;
+}
+
+.orb-1 {
+  background: radial-gradient(circle, #2563eb 0%, transparent 70%);
+  top: -80px;
+  left: -80px;
+  animation: drift-1 22s ease infinite alternate;
+}
+
+.orb-2 {
+  background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+  bottom: -120px;
+  right: -80px;
+  animation: drift-2 26s ease infinite alternate;
+}
+
+@keyframes drift-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(140px, 90px) scale(1.15); }
+  100% { transform: translate(-40px, 130px) scale(0.9); }
+}
+
+@keyframes drift-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-120px, -140px) scale(0.85); }
+  100% { transform: translate(90px, 60px) scale(1.1); }
+}
+
+/* Sidebar Navigation Menu */
+.nav-sidebar {
+  width: 80px;
+  border-right: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  gap: 20px;
+  z-index: 5;
+}
+
+.nav-sidebar-btn {
+  width: 56px;
+  height: 56px;
+  border: 1px solid transparent;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--text-secondary);
+}
+
+.nav-sidebar-btn:hover {
+  color: var(--text-primary);
+  transform: scale(1.08);
+  border-color: var(--border-muted);
+}
+
+.nav-sidebar-btn.active {
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  background-color: var(--bg-tertiary);
+}
+
+.nav-sidebar-label {
+  font-size: 8px;
+  font-weight: bold;
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* App Main Grid Switcher */
+.viewport-content {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  z-index: 3;
+}
+
+/* Multi-Column Ingest Tab View */
+.ingest-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  height: 100%;
+  padding: 24px;
+  overflow: hidden;
+}
+
+/* Multi-Column Assistant View */
+.assistant-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  height: 100%;
+  padding: 24px;
+  overflow: hidden;
+}
+
+/* Slide-out Contact Profile Drawer */
+.profile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  height: 100vh;
+  background-color: var(--bg-primary);
+  border-left: 1px solid var(--border-color);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 100;
+  box-shadow: -12px 0 35px rgba(0, 0, 0, 0.08);
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-drawer.open {
+  transform: translateX(0);
+}
+
+/* Drawer Backdrop Layer */
+.profile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(3px);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.profile-drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Clean floating map controls */
+.floating-controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+  background-color: var(--bg-primary);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+}
+
+/* Staggered Content Entrance and Micro-Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.btn, .btn-icon, .chat-send-btn, .btn-quick-prompt, .nav-sidebar-btn {
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+.btn:hover, .btn-icon:hover:not(:disabled), .chat-send-btn:hover:not(:disabled), .btn-quick-prompt:hover {
+  transform: translateY(-1px) scale(1.03);
+}
+
+/* Hide raw panel headers in tab containers to save vertical space */
+.viewport-content .panel-header {
+  border-top: none;
+}
+
+@media (max-width: 1024px) {
+  .ingest-grid, .assistant-grid {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+  .profile-drawer {
+    width: 100vw;
+  }
+}
+

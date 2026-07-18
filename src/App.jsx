@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Moon, Sun, Trash2, UserPlus, Info, Check, Sparkles, X } from 'lucide-react';
+import { Settings, Moon, Sun, Trash2, UserPlus, Info, Check, Sparkles, X, Share2, FileText, MessageSquare } from 'lucide-react';
 import IngestPanel from './components/IngestPanel';
 import ContactWeb from './components/ContactWeb';
 import SuggestionsPanel from './components/SuggestionsPanel';
@@ -359,6 +359,9 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* Background Animated Glow Orbs */}
+      <div className="glow-orb orb-1" />
+      <div className="glow-orb orb-2" />
       
       {/* Top Header Navigation */}
       <header className="app-header select-none">
@@ -427,73 +430,120 @@ export default function App() {
 
       {/* Main Content Workspace Layout */}
       <main className="app-main">
-        
-        {/* LEFT COLUMN: Ingest & History logs */}
-        <div className={`sidebar-left ${activeTab === 'logs' ? 'mobile-visible' : 'mobile-hidden'}`}>
-          <IngestPanel 
-            onIngest={handleIngest} 
-            rawTexts={rawTexts} 
-            onDeleteLog={handleDeleteLog}
-            loading={ingestLoading}
-          />
-        </div>
+        {/* Left Navigation Sidebar for Desktop */}
+        <aside className="nav-sidebar mobile-hidden">
+          <button
+            onClick={() => setActiveTab('network')}
+            className={`nav-sidebar-btn ${activeTab === 'network' ? 'active' : ''}`}
+            title="Network Map"
+          >
+            <Share2 size={18} />
+            <span className="nav-sidebar-label">Network</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('logs')}
+            className={`nav-sidebar-btn ${activeTab === 'logs' ? 'active' : ''}`}
+            title="Logs & Ingest"
+          >
+            <FileText size={18} />
+            <span className="nav-sidebar-label">Ingest</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('assistant')}
+            className={`nav-sidebar-btn ${activeTab === 'assistant' ? 'active' : ''}`}
+            title="AI Assistant"
+          >
+            <MessageSquare size={18} />
+            <span className="nav-sidebar-label">Chat</span>
+          </button>
+        </aside>
 
-        {/* CENTER COLUMN: Contact Relationship Canvas */}
-        <div className={`canvas-wrapper ${activeTab === 'network' ? 'mobile-visible' : 'mobile-hidden'}`}>
-          <ContactWeb 
-            contacts={contacts} 
-            connections={connections} 
-            onSelectContact={setSelectedContact}
-          />
-        </div>
-
-        {/* RIGHT COLUMN: Intelligence Assistant Sidebar */}
-        <div className={`sidebar-right ${activeTab === 'assistant' ? 'mobile-visible' : 'mobile-hidden'}`}>
-          
-          {/* Selected Contact Card */}
-          {selectedContact && (
-            <div className="profile-card">
-              <div className="profile-card-header">
-                <span>Profile</span>
-                <button 
-                  onClick={() => setSelectedContact(null)} 
-                  className="modal-close-btn"
-                >
-                  <X size={12} />
-                </button>
-              </div>
-              <div className="profile-card-body">
-                <div>
-                  <div className="profile-name">{selectedContact.name}</div>
-                  <div className="profile-meta">
-                    {selectedContact.role || "No Role"} {selectedContact.company ? `@ ${selectedContact.company}` : ''}
-                  </div>
-                </div>
-                {selectedContact.notes && (
-                  <div className="profile-notes-box">
-                    <p className="profile-notes-text">{selectedContact.notes}</p>
-                  </div>
-                )}
-              </div>
+        {/* Viewport for Active Tab Content */}
+        <div className="viewport-content">
+          {activeTab === 'network' && (
+            <div className="fade-in-up" style={{ flex: 1, height: '100%' }}>
+              <ContactWeb 
+                contacts={contacts} 
+                connections={connections} 
+                onSelectContact={setSelectedContact}
+              />
             </div>
           )}
 
-          {/* Suggestions Panel */}
-          <SuggestionsPanel 
-            suggestions={suggestions} 
-            loading={suggestionsLoading} 
-            onRefresh={() => triggerSuggestions()}
-            hasTexts={rawTexts.length > 0}
-          />
+          {activeTab === 'logs' && (
+            <div className="fade-in-up" style={{ height: '100%' }}>
+              <IngestPanel 
+                onIngest={handleIngest} 
+                rawTexts={rawTexts} 
+                onDeleteLog={handleDeleteLog}
+                loading={ingestLoading}
+              />
+            </div>
+          )}
 
-          {/* Query QA Chat Panel */}
-          <QueryPanel 
-            onQuery={handleChatQuery} 
-            chatHistory={chatHistory} 
-            loading={chatLoading}
-          />
+          {activeTab === 'assistant' && (
+            <div className="assistant-grid fade-in-up">
+              <QueryPanel 
+                onQuery={handleChatQuery} 
+                chatHistory={chatHistory} 
+                loading={chatLoading}
+              />
+              <SuggestionsPanel 
+                suggestions={suggestions} 
+                loading={suggestionsLoading} 
+                onRefresh={() => triggerSuggestions()}
+                hasTexts={rawTexts.length > 0}
+              />
+            </div>
+          )}
         </div>
       </main>
+
+      {/* Slide-out Contact Profile Drawer */}
+      <div 
+        className={`profile-drawer-backdrop ${selectedContact ? 'open' : ''}`} 
+        onClick={() => setSelectedContact(null)}
+      />
+      <div className={`profile-drawer ${selectedContact ? 'open' : ''}`}>
+        {selectedContact && (
+          <>
+            <div className="profile-card-header" style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 'bold', fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>PROFILE DETAIL</span>
+              <button 
+                onClick={() => setSelectedContact(null)} 
+                className="modal-close-btn"
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                <X size={14} style={{ color: 'var(--text-primary)' }} />
+              </button>
+            </div>
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto', flex: 1 }} className="select-text">
+              <div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', letterSpacing: '-0.02em', marginBottom: '4px', color: 'var(--text-primary)' }}>
+                  {selectedContact.name}
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>
+                  {selectedContact.role || "No Role Specified"}
+                  {selectedContact.company ? ` • ${selectedContact.company}` : ''}
+                </div>
+              </div>
+
+              {selectedContact.notes ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <span style={{ fontSize: '9px', fontWeight: 'bold', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>Extracted Context</span>
+                  <p style={{ fontSize: '12px', lineHeight: '1.6', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', backgroundColor: 'var(--bg-tertiary)', padding: '16px', border: '1px solid var(--border-muted)' }}>
+                    {selectedContact.notes}
+                  </p>
+                </div>
+              ) : (
+                <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>
+                  No additional notes extracted for this contact.
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Global Status/Toast Notification Banner */}
       {toastMessage && (
