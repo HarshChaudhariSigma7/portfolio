@@ -7,7 +7,7 @@ export default function SuggestionsPanel({ suggestions, loading, onRefresh, hasT
       {/* Panel Header */}
       <div className="panel-header">
         <div className="panel-header-title">
-          <Lightbulb size={13} />
+          <Lightbulb size={16} />
           <span className="panel-title-text">INSIGHTS</span>
         </div>
         <button
@@ -17,7 +17,7 @@ export default function SuggestionsPanel({ suggestions, loading, onRefresh, hasT
           title="Refresh Insights"
         >
           <RefreshCw 
-            size={12} 
+            size={16} 
             className={loading ? 'animate-spin' : ''} 
           />
         </button>
@@ -32,7 +32,7 @@ export default function SuggestionsPanel({ suggestions, loading, onRefresh, hasT
           </div>
         ) : !hasTexts ? (
           <div className="suggestions-empty">
-            <AlertCircle size={16} />
+            <AlertCircle size={20} />
             <span style={{ fontSize: '10px', textTransform: 'uppercase', fontWeight: 'bold' }}>No logs uploaded yet</span>
             <span style={{ fontSize: '9px', opacity: 0.7, maxWidth: '200px' }}>Add unstructured contact logs to receive proactive network recommendations.</span>
           </div>

@@ -50,14 +50,14 @@ export default function SettingsModal({
         {/* Header */}
         <div className="modal-header">
           <div className="modal-header-title">
-            <Key size={13} />
+            <Key size={16} />
             <span>SETTINGS</span>
           </div>
           <button 
             onClick={onClose} 
             className="modal-close-btn"
           >
-            <X size={14} />
+            <X size={16} />
           </button>
         </div>
 
@@ -67,7 +67,7 @@ export default function SettingsModal({
           <div className="status-indicator-box">
             {apiKey ? (
               <>
-                <ShieldCheck style={{ color: 'var(--text-primary)', strokeWidth: 1.5, marginTop: '2px' }} size={18} />
+                <ShieldCheck style={{ color: 'var(--text-primary)', strokeWidth: 1.5, marginTop: '2px' }} size={20} />
                 <div className="status-indicator-content">
                   <span className="status-indicator-title">GEMINI API ACTIVE</span>
                   <span className="status-indicator-desc">All text uploads and queries are processed live using gemini-2.5-flash.</span>
@@ -75,9 +75,9 @@ export default function SettingsModal({
               </>
             ) : (
               <>
-                <ShieldAlert style={{ color: 'var(--text-muted)', strokeWidth: 1.5, marginTop: '2px' }} size={18} />
+                <ShieldAlert style={{ color: 'var(--text-muted)', strokeWidth: 1.5, marginTop: '2px' }} size={20} />
                 <div className="status-indicator-content">
-                  <span className="status-indicator-title" style={{ color: 'var(--text-muted)' }}>DEMO MODE ACTIVE</span>
+                  <span className="status-indicator-title" style={{ color: 'var(--text-muted)' }}>OFFLINE MODE ACTIVE</span>
                   <span className="status-indicator-desc">No API Key configured. The CRM is running offline with simulated heuristics. Enter a key below to connect live.</span>
                 </div>
               </>
@@ -120,13 +120,13 @@ export default function SettingsModal({
             <div className="grid-2">
               {/* Export */}
               <button onClick={onExportData} className="btn">
-                <Download size={11} />
+                <Download size={14} />
                 <span>Export JSON</span>
               </button>
 
               {/* Import */}
               <label className="btn" style={{ cursor: 'pointer' }}>
-                <Upload size={11} />
+                <Upload size={14} />
                 <span>Import JSON</span>
                 <input 
                   type="file" 
@@ -152,7 +152,7 @@ export default function SettingsModal({
               className="btn"
               style={{ borderStyle: 'dashed', color: 'var(--text-muted)', marginTop: '8px' }}
             >
-              <RotateCcw size={11} />
+              <RotateCcw size={14} />
               <span>Reset Database</span>
             </button>
           </div>

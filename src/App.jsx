@@ -382,18 +382,12 @@ export default function App() {
 
         {/* Action Controls */}
         <div className="header-actions">
-          {!apiKey && (
-            <span className="mode-badge">
-              Demo Mode
-            </span>
-          )}
-
           <button 
             onClick={() => setDarkMode(!darkMode)}
             className="btn-icon"
             title="Toggle theme"
           >
-            {darkMode ? <Sun size={12} /> : <Moon size={12} />}
+            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
           <button 
@@ -401,7 +395,7 @@ export default function App() {
             className="btn-icon"
             title="Open settings"
           >
-            <Settings size={12} />
+            <Settings size={18} />
           </button>
         </div>
       </header>
@@ -437,7 +431,7 @@ export default function App() {
             className={`nav-sidebar-btn ${activeTab === 'network' ? 'active' : ''}`}
             title="Network Map"
           >
-            <Share2 size={18} />
+            <Share2 size={24} />
             <span className="nav-sidebar-label">Network</span>
           </button>
           <button
@@ -445,7 +439,7 @@ export default function App() {
             className={`nav-sidebar-btn ${activeTab === 'logs' ? 'active' : ''}`}
             title="Logs & Ingest"
           >
-            <FileText size={18} />
+            <FileText size={24} />
             <span className="nav-sidebar-label">Ingest</span>
           </button>
           <button
@@ -453,7 +447,7 @@ export default function App() {
             className={`nav-sidebar-btn ${activeTab === 'assistant' ? 'active' : ''}`}
             title="AI Assistant"
           >
-            <MessageSquare size={18} />
+            <MessageSquare size={24} />
             <span className="nav-sidebar-label">Chat</span>
           </button>
         </aside>
@@ -514,7 +508,7 @@ export default function App() {
                 className="modal-close-btn"
                 style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
               >
-                <X size={14} style={{ color: 'var(--text-primary)' }} />
+                <X size={18} style={{ color: 'var(--text-primary)' }} />
               </button>
             </div>
             <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto', flex: 1 }} className="select-text">

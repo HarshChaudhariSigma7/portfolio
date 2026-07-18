@@ -17,7 +17,7 @@ export default function IngestPanel({ onIngest, rawTexts, onDeleteLog, loading }
       <div className="panel select-none" style={{ height: 'fit-content' }}>
         <div className="panel-header">
           <div className="panel-header-title">
-            <Upload size={13} />
+            <Upload size={16} />
             <span className="panel-title-text">LOG INGEST</span>
           </div>
         </div>
@@ -40,7 +40,7 @@ export default function IngestPanel({ onIngest, rawTexts, onDeleteLog, loading }
               <span className="animate-pulse">PARSING WITH GEMINI...</span>
             ) : (
               <>
-                <Plus size={12} />
+                <Plus size={14} />
                 <span>INGEST LOG</span>
               </>
             )}
@@ -52,7 +52,7 @@ export default function IngestPanel({ onIngest, rawTexts, onDeleteLog, loading }
       <div className="panel" style={{ flex: 1, height: '100%', overflow: 'hidden' }}>
         <div className="panel-header">
           <div className="panel-header-title">
-            <BookOpen size={13} />
+            <BookOpen size={16} />
             <span className="panel-title-text">HISTORICAL LOGS ({rawTexts.length})</span>
           </div>
         </div>
@@ -77,7 +77,7 @@ export default function IngestPanel({ onIngest, rawTexts, onDeleteLog, loading }
                     className="btn-danger-link"
                     title="Delete Log"
                   >
-                    <Trash2 size={10} />
+                    <Trash2 size={13} />
                   </button>
                 </div>
                 

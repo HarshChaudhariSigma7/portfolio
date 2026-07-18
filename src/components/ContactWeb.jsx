@@ -173,13 +173,13 @@ export default function ContactWeb({ contacts, connections, onSelectContact }) {
       {/* Floating Canvas Controls */}
       <div className="floating-controls select-none" style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10, display: 'flex', gap: '8px', background: 'var(--bg-primary)', padding: '4px', borderRadius: '6px', border: '1px solid var(--border-muted)' }}>
         <button onClick={() => handleZoom(1.2)} className="btn-icon" title="Zoom In" style={{ border: 'none', background: 'transparent' }}>
-          <ZoomIn size={12} style={{ color: 'var(--text-primary)' }} />
+          <ZoomIn size={16} style={{ color: 'var(--text-primary)' }} />
         </button>
         <button onClick={() => handleZoom(0.8)} className="btn-icon" title="Zoom Out" style={{ border: 'none', background: 'transparent' }}>
-          <ZoomOut size={12} style={{ color: 'var(--text-primary)' }} />
+          <ZoomOut size={16} style={{ color: 'var(--text-primary)' }} />
         </button>
         <button onClick={resetView} className="btn-icon" title="Recenter" style={{ border: 'none', background: 'transparent' }}>
-          <Maximize2 size={12} style={{ color: 'var(--text-primary)' }} />
+          <Maximize2 size={16} style={{ color: 'var(--text-primary)' }} />
         </button>
       </div>
 

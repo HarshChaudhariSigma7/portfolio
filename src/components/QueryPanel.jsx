@@ -32,7 +32,7 @@ export default function QueryPanel({ onQuery, chatHistory, loading }) {
     <div className="panel" style={{ flex: 1, minHeight: '300px' }}>
       <div className="panel-header" style={{ userSelect: 'none' }}>
         <div className="panel-header-title">
-          <Terminal size={13} />
+          <Terminal size={16} />
           <span className="panel-title-text">ASSISTANT</span>
         </div>
       </div>
@@ -50,7 +50,7 @@ export default function QueryPanel({ onQuery, chatHistory, loading }) {
                   className="btn-quick-prompt"
                 >
                   <span>{p}</span>
-                  <ArrowRight size={10} />
+                  <ArrowRight size={13} />
                 </button>
               ))}
             </div>
@@ -70,7 +70,7 @@ export default function QueryPanel({ onQuery, chatHistory, loading }) {
         )}
         {loading && (
           <div className="chat-loading">
-            <Loader2 size={12} className="animate-spin" />
+            <Loader2 size={16} className="animate-spin" />
             <span>Querying Database...</span>
           </div>
         )}
@@ -92,7 +92,7 @@ export default function QueryPanel({ onQuery, chatHistory, loading }) {
           disabled={!query.trim() || loading}
           className="chat-send-btn"
         >
-          <Send size={12} />
+          <Send size={16} />
         </button>
       </form>
     </div>

@@ -38,6 +38,7 @@
 
 body {
   font-family: var(--font-sans);
+  font-size: 15px;
   background: linear-gradient(-45deg, #f0f0f0, #f8f8f8, #ffffff, #e8e8e8);
   background-size: 400% 400%;
   animation: gradient-flow 15s ease infinite;
@@ -126,7 +127,7 @@ body::before {
 }
 
 .header-logo {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 900;
   letter-spacing: 0.15em;
   border: 1px solid var(--border-color);
@@ -135,7 +136,7 @@ body::before {
 }
 
 .header-tagline {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-muted);
   font-weight: 700;
 }
@@ -144,7 +145,7 @@ body::before {
   display: flex;
   align-items: center;
   gap: 16px;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-secondary);
   font-weight: 600;
   text-transform: uppercase;
@@ -243,14 +244,14 @@ body::before {
 }
 
 .panel-title-text {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: bold;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .panel-subtitle-text {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-muted);
   text-transform: uppercase;
 }
@@ -265,7 +266,7 @@ body::before {
 .panel-footer {
   padding: 6px 16px;
   border-top: 1px solid var(--border-muted);
-  font-size: 8px;
+  font-size: 10px;
   color: var(--text-muted);
   background-color: var(--bg-tertiary);
   display: flex;
@@ -279,7 +280,7 @@ body::before {
   justify-content: center;
   gap: 8px;
   padding: 6px 12px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: bold;
   text-transform: uppercase;
   font-family: var(--font-mono);
@@ -346,7 +347,7 @@ body::before {
 .textarea-input {
   width: 100%;
   padding: 12px;
-  font-size: 11px;
+  font-size: 13px;
   font-family: var(--font-mono);
   background-color: transparent;
   color: var(--text-primary);
@@ -363,7 +364,7 @@ body::before {
 
 .text-input {
   padding: 6px 12px;
-  font-size: 11px;
+  font-size: 13px;
   font-family: var(--font-mono);
   background-color: transparent;
   color: var(--text-primary);
@@ -412,7 +413,7 @@ body::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-muted);
   font-weight: bold;
 }
@@ -424,7 +425,7 @@ body::before {
 }
 
 .log-item-text {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
   color: var(--text-primary);
   word-break: break-word;
@@ -443,7 +444,7 @@ body::before {
   background-color: var(--bg-primary);
   display: flex;
   gap: 12px;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
   position: relative;
   overflow: hidden;
@@ -520,7 +521,7 @@ body::before {
   width: 100%;
   text-align: left;
   padding: 6px 12px;
-  font-size: 9px;
+  font-size: 11px;
   border: 1px dashed var(--text-muted);
   background: transparent;
   color: var(--text-secondary);
@@ -542,7 +543,7 @@ body::before {
   flex-direction: column;
   padding: 12px;
   border: 1px solid var(--border-color);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
   background-color: var(--bg-primary);
 }
@@ -556,7 +557,7 @@ body::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 8px;
+  font-size: 10px;
   color: var(--text-muted);
   font-weight: bold;
   margin-bottom: 6px;
@@ -578,7 +579,7 @@ body::before {
 .chat-text-input {
   flex: 1;
   padding: 8px 12px;
-  font-size: 11px;
+  font-size: 13px;
   border: none;
   background-color: transparent;
   color: var(--text-primary);
@@ -790,7 +791,7 @@ body::before {
   border-bottom: 1px solid var(--border-color);
   background-color: var(--bg-tertiary);
   font-weight: bold;
-  font-size: 11px;
+  font-size: 13px;
   text-transform: uppercase;
 }
 
@@ -802,12 +803,12 @@ body::before {
 }
 
 .profile-name {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 900;
 }
 
 .profile-meta {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-muted);
   font-weight: bold;
   text-transform: uppercase;
@@ -820,7 +821,7 @@ body::before {
 }
 
 .profile-notes-label {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: bold;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -829,7 +830,7 @@ body::before {
 }
 
 .profile-notes-text {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
   color: var(--text-primary);
 }
